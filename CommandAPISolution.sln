@@ -5,6 +5,13 @@ VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandAPI", "CommandAPI\CommandAPI.csproj", "{2EFF3633-B66C-4085-9FE9-CFC11CB8C478}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandAPI.Tests", "CommandAPI.Tests\CommandAPI.Tests.csproj", "{2BB2D286-AEF2-4192-9041-E3539D0CF19F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BD164343-902B-430B-BC8F-E58F847E7FB6}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +22,10 @@ Global
 		{2EFF3633-B66C-4085-9FE9-CFC11CB8C478}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2EFF3633-B66C-4085-9FE9-CFC11CB8C478}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2EFF3633-B66C-4085-9FE9-CFC11CB8C478}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BB2D286-AEF2-4192-9041-E3539D0CF19F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BB2D286-AEF2-4192-9041-E3539D0CF19F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BB2D286-AEF2-4192-9041-E3539D0CF19F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BB2D286-AEF2-4192-9041-E3539D0CF19F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
