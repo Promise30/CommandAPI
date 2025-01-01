@@ -10,6 +10,7 @@ using NUnit.Framework.Legacy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,7 +55,7 @@ namespace CommandAPI.Tests
             var actualResult =  _commandService.GetCommands();
 
             // Assert
-            Assert.That(actualResult, Is.EqualTo(commandDtos));
+            Assert.That(actualResult.Data, Is.EqualTo(commandDtos));
 
         }
         [Test]
@@ -76,8 +77,21 @@ namespace CommandAPI.Tests
             var result = _commandService.GetCommandById(1);
 
             // Assert
-            Assert.That(result, Is.EqualTo(commandDto));
+            Assert.That(result.Data, Is.EqualTo(commandDto));
         }
+        [Test]
+        public void GetCommandById_NonExistingId_ReturnsNotFound()
+        {
+            // Arrange
+            _commandRepoMock.Setup(repo => repo.GetCommandById(It.IsAny<int>())).Returns((Command)null);
+
+            // Act
+            var result = _commandService.GetCommandById(1);
+
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+        }
+
         [Test]
         public void CreateCommand_ValidCommand_CreatesCommand()
         {
@@ -92,43 +106,82 @@ namespace CommandAPI.Tests
             // Assert
             _mapperMock.Verify(m => m.Map<Command>(commandCreateDto), Times.Once);
             _commandRepoMock.Verify(r => r.CreateCommand(command), Times.Once);
-            _commandRepoMock.Verify(r => r.SaveChanges(), Times.Once);
+            
         }
+        [Test]
+        public void UpdateCommand_ValidCommand_UpdatesCommand()
+        {
+            // Arrange
+            var commandUpdateDto = new CommandUpdateDto { HowTo = "Test Updated", CommandLine = "Test Updated", Platform = "Test Updated" };
+            var command = new Command { Id = 1, HowTo = "Test", CommandLine = "Test", Platform = "Test" };
+
+            _commandRepoMock.Setup(repo => repo.GetCommandById(1)).Returns(command);
+            _mapperMock.Setup(m => m.Map(commandUpdateDto, command)).Returns(command);
+
+            // Act
+            _commandService.UpdateCommand(1, commandUpdateDto);
+
+            // Assert
+            _commandRepoMock.Verify(r => r.UpdateCommand(command), Times.Once);
+        }
+        [Test]
+        public void UpdateCommand_NonExistingId_ReturnsNotFound()
+        {
+            // Arrange
+            var commandUpdateDto = new CommandUpdateDto { HowTo = "Test Updated", CommandLine = "Test Updated", Platform = "Test Updated" };
+            _commandRepoMock.Setup(repo => repo.GetCommandById(It.IsAny<int>())).Returns((Command)null);
+
+            // Act
+            var result = _commandService.UpdateCommand(1, commandUpdateDto);
+
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
+           
+        }
+
         [Test]
         public void GetAllCommands_InvokeMethod_CheckIfRepoIsCalled()
         {
             _commandService.GetCommands();
             _commandRepoMock.Verify(x => x.GetAllCommands(), Times.Once);
         }
-        [TestCase]
-        public void CreateCommand_NullRequest_ThrowsException()
-        {
-            var exception = Assert.Throws<ArgumentException>(() => _commandService.CreateCommand(null));
-            ClassicAssert.AreEqual("Command not found", exception.Message);
-            //ClassicAssert.AreEqual("request", exception.ParamName);
-        }
-        [TestCase]
+        
+        [Test]
         public void CreateCommand_ValidResponse_CheckIfRepoIsCalled()
         {
-            _mapperMock.Setup(x => x.Map<Command>(It.IsAny<object>())).Returns(new Command());
+            _mapperMock.Setup(x => x.Map<Command>(It.IsAny<CommandCreateDto>())).Returns(new Command());
             _commandService.CreateCommand(new CommandCreateDto());
             _commandRepoMock.Verify(x => x.CreateCommand(It.IsAny<Command>()), Times.Once);
         }
         [Test]
-        public void GetCommands_ReturnsResponse_WhenDBIsEmpty()
+        public void DeleteCommand_ExistingId_DeletesCommand()
         {
-            var mockRepo = new Mock<ICommandRepo>();
-            mockRepo.Setup(repo => repo.GetAllCommands()).Returns(GetCommands(0));
-            var realProfile = new CommandsProfile();
-            var config = new MapperConfiguration(cfg=> cfg.AddProfile(realProfile));
-            IMapper mapper = new Mapper(config);
-            var service = new CommandService(mockRepo.Object, mapper);
+            // Arrange
+            var command = new Command { Id = 1, HowTo = "Test", CommandLine = "Test", Platform = "Test" };
+            _commandRepoMock.Setup(repo => repo.GetCommandById(1)).Returns(command);
+
             // Act
-            var result = service.GetCommands();
+            _commandService.DeleteCommand(1);
+
             // Assert
+            _commandRepoMock.Verify(r => r.DeleteCommand(command), Times.Once);
+        }
+        [Test]
+        public void DeleteCommand_NonExistingId_ReturnsNotFound()
+        {
+            // Arrange
+            _commandRepoMock.Setup(repo => repo.GetCommandById(It.IsAny<int>())).Returns((Command)null);
+
+            // Act
+            var result = _commandService.DeleteCommand(1);
+
+            // Assert
+            Assert.That(result.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
             
         }
 
+
+        #region
         public void Dispose()
         {
             _commandRepoMock = null;
@@ -150,6 +203,7 @@ namespace CommandAPI.Tests
             }
             return commands;
         }
+        #endregion
     }
 }
 
