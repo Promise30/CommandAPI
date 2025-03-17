@@ -1,2 +1,2 @@
 # Command API
-This project aims to mimic the 
+This project aims to implement the structure of a typical system command functionality. 
